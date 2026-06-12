@@ -8,27 +8,26 @@
     tools:context=".MainActivity">
 
     <TextView
-        android:id="@+id/HelloWorld"
+        android:id="@+id/StartName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.07" />
 
     <EditText
         android:id="@+id/gerich"
         android:layout_width="162dp"
         android:layout_height="48dp"
-        android:layout_marginTop="80dp"
         android:ems="10"
         android:hint="Введите героин"
         android:inputType="text"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.493"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="98dp" />
 
     <Button
         android:id="@+id/startbutton"
@@ -37,7 +36,27 @@
         android:text="Войти в мужчину"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/HelloWorld" />
+        app:layout_constraintTop_toBottomOf="@+id/StartName"
+        app:layout_constraintVertical_bias="0.809" />
+
+    <EditText
+        android:id="@+id/editTextText2"
+        android:layout_width="195dp"
+        android:layout_height="48dp"
+        android:ems="10"
+        android:hint="введите паролич"
+        android:inputType="text"
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="181dp" />
+
+    <Button
+        android:id="@+id/rega"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="зарегистрироваться"
+        tools:layout_editor_absoluteX="83dp"
+        tools:layout_editor_absoluteY="260dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
