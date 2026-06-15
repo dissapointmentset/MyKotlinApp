@@ -14,16 +14,20 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        var helwrld = findViewById<TextView>(R.id.StartName)//var - слово для создания переменной
-        var ger: EditText =
+        val helwrld =
+            findViewById<TextView>(R.id.StartName)//val, var - слово для создания переменной
+        val logField: EditText =
             findViewById(R.id.gerich)//тип перемнной указывается либо в фигурных скобках либо через двоеточие
-        var butt: Button = findViewById(R.id.startbutton)
-        butt.setOnClickListener {
-            var text = ger.text.toString()
-            if (text == "penis")//если ввелось слово пенис, выводим сообщение с помощью библиотеки тост
-                Toast.makeText(this, "Ооооо даааа", Toast.LENGTH_SHORT).show()
-            else//иначе меняем тест кнопки
-                helwrld.text = text
+        val paswrdFld: EditText = findViewById(R.id.editTextText2)
+        val butstart: Button = findViewById(R.id.startbutton)
+
+        butstart.setOnClickListener {
+            val login = logField.text.toString().trim()
+            val passwrd = paswrdFld.text.toString().trim()
+            if (login != "some52@mail.ru")//если ввелось слово пенис, выводим сообщение с помощью библиотеки тост
+                Toast.makeText(this, "Неверный емаил", Toast.LENGTH_SHORT).show()
+            else if (passwrd == "dupashmupa") helwrld.text = login
+            else Toast.makeText(this, "Неверный пароль", Toast.LENGTH_SHORT).show()
         }
     }
 }

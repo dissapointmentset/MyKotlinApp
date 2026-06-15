@@ -7,56 +7,71 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+    <Button
+        android:id="@+id/studbutt"
+        android:layout_width="210dp"
+        android:layout_height="70dp"
+        android:text="Войти как студент"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.824" />
+
     <TextView
         android:id="@+id/StartName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="99dp"
+        android:layout_height="22dp"
         android:text="Hello World!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.502"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.07" />
+        app:layout_constraintVertical_bias="0.069" />
 
     <EditText
         android:id="@+id/gerich"
-        android:layout_width="162dp"
-        android:layout_height="48dp"
+        android:layout_width="267dp"
+        android:layout_height="66dp"
         android:ems="10"
         android:hint="Введите героин"
         android:inputType="text"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="98dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.254" />
 
     <Button
         android:id="@+id/startbutton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="210dp"
+        android:layout_height="70dp"
         android:text="Войти в мужчину"
+        android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintHorizontal_bias="0.497"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/StartName"
-        app:layout_constraintVertical_bias="0.809" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.661" />
 
     <EditText
         android:id="@+id/editTextText2"
-        android:layout_width="195dp"
-        android:layout_height="48dp"
+        android:layout_width="272dp"
+        android:layout_height="60dp"
         android:ems="10"
-        android:hint="введите паролич"
+        android:hint="введите пароль"
         android:inputType="text"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="181dp" />
-
-    <Button
-        android:id="@+id/rega"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="зарегистрироваться"
-        tools:layout_editor_absoluteX="83dp"
-        tools:layout_editor_absoluteY="260dp" />
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.484"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.412" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
