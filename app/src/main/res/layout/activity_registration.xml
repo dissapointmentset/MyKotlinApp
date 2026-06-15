@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RegistrationActivity">
+
+    <TextView
+        android:id="@+id/StartName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        android:textColor="@color/black"
+        android:layout_gravity="center"
+        android:layout_marginTop="120dp"
+        android:textSize="24sp"
+        android:textStyle=""
+        />
+
+
+    <EditText
+    android:id="@+id/login"
+    android:layout_width="267dp"
+    android:layout_height="66dp"
+    android:ems="10"
+    android:hint="Введите героин"
+    android:inputType="textEmailAddress"
+    android:textSize="18sp"
+    android:layout_gravity="center"
+    android:layout_marginTop="50dp"
+    />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="267dp"
+        android:layout_height="66dp"
+        android:ems="10"
+        android:hint="Введите героин"
+        android:inputType="textEmailAddress"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"
+        />
+<!--        android:textColorHint=""-->
+
+
+    <EditText
+        android:id="@+id/psswrd"
+        android:layout_width="272dp"
+        android:layout_height="60dp"
+        android:ems="10"
+        android:hint="введите пароль"
+        android:inputType="text"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="30dp"/>
+<!--        android:textColorHint=""-->
+
+
+    <Button
+        android:id="@+id/studbutt"
+        android:layout_width="210dp"
+        android:layout_height="70dp"
+        android:text="Войти как студент"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        />
+</LinearLayout>
