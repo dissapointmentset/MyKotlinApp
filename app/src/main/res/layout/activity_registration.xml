@@ -38,7 +38,7 @@
         android:layout_width="267dp"
         android:layout_height="66dp"
         android:ems="10"
-        android:hint="Введите героин"
+        android:hint="Введите эмэил"
         android:inputType="textEmailAddress"
         android:textSize="18sp"
         android:layout_gravity="center"
@@ -49,7 +49,7 @@
 
     <EditText
         android:id="@+id/psswrd"
-        android:layout_width="272dp"
+        android:layout_width="267dp"
         android:layout_height="60dp"
         android:ems="10"
         android:hint="введите пароль"
@@ -61,12 +61,11 @@
 
 
     <Button
-        android:id="@+id/studbutt"
-        android:layout_width="210dp"
+        android:id="@+id/regbutt"
+        android:layout_width="267dp"
         android:layout_height="70dp"
-        android:text="Войти как студент"
-        android:textSize="18sp"
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
-        />
+        android:text="зарегистрироваться"
+        android:textSize="18sp" />
 </LinearLayout>
