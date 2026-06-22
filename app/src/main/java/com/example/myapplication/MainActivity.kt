@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -13,20 +14,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_main)
-        val helwrld =
-            findViewById<TextView>(R.id.StartName)//val, var - слово для создания переменной
-        val logField: EditText =
-            findViewById(R.id.gerich)//тип перемнной указывается либо в фигурных скобках либо через двоеточие
-        val paswrdFld: EditText = findViewById(R.id.enterPsswrd)
-        val butstart: Button = findViewById(R.id.startbutton)
+        val linkToReg: Button = findViewById(R.id.enter_regbutt)
 
-//        butstart.setOnClickListener {
-//            val login = logField.text.toString().trim()
-//            val passwrd = paswrdFld.text.toString().trim()
-//            if (login != "some52@mail.ru")//если ввелось слово пенис, выводим сообщение с помощью библиотеки тост
-//                Toast.makeText(this, "Неверный емаил", Toast.LENGTH_SHORT).show()
-//            else if (passwrd == "dupashmupa") helwrld.text = login
-//            else Toast.makeText(this, "Неверный пароль", Toast.LENGTH_SHORT).show()
-//        }
+        linkToReg.setOnClickListener {
+            val intent = Intent(this, RegistrationActivity::class.java)
+            startActivity(intent)
+        }
     }
 }
