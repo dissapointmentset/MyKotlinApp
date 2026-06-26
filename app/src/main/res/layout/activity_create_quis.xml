@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CreateQuis">
+
+    <EditText
+        android:id="@+id/test_name"
+        android:layout_width="250dp"
+        android:layout_height="70dp"
+        android:ems="10"
+        android:hint="Введите название теста"
+        android:inputType="textEmailAddress"
+        android:textSize="18sp"
+        android:layout_gravity="center"
+        android:layout_marginTop="150dp"/>
+
+
+
+    <Button
+        android:layout_gravity="center"
+        android:id="@+id/dalee_one"
+        android:layout_width="220dp"
+        android:layout_height="70dp"
+        android:text="далее"
+        android:layout_marginTop="50dp"/>
+
+
+</LinearLayout>
