@@ -5,6 +5,11 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -53,6 +58,9 @@ import androidx.compose.ui.unit.sp
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import kotlinx.coroutines.flow.callbackFlow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.RadioButton
 
 
 class MainActivity2 : ComponentActivity() {
@@ -69,6 +77,12 @@ data class Question(
     val name:String){
 }
 
+data class AnswerOption(
+    val id: Int = System.currentTimeMillis().toInt(),
+    var text: String = "",
+    var isChecked: Boolean = false
+)
+
 @Composable
 fun Glavnaya(){
     val questions = remember {
@@ -77,12 +91,15 @@ fun Glavnaya(){
 
         )
     }
-    Box(modifier = Modifier.fillMaxSize().background(color = Color.LightGray)){
+    Box(modifier = Modifier.fillMaxSize().background(color = Color.White)){
         LazyColumn(modifier = Modifier.fillMaxHeight(0.9f)) {
             items(questions.size){ index ->
                 val question = questions[index]
                 ListItem(
-                    name = question.name
+                    name = question.name,
+                    onDelete = {
+                        questions.removeAt(index)
+                    }
                 )
             }
         }
@@ -100,7 +117,33 @@ fun Glavnaya(){
     }
 }
 
-
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    singleLine: Boolean = true)
+   {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        colors = TextFieldDefaults.colors(
+            focusedTextColor = Color.Black,
+            unfocusedTextColor = Color.DarkGray,
+            focusedContainerColor = Color.White,
+            unfocusedContainerColor = Color.LightGray,
+            focusedIndicatorColor = Color.Blue,
+            unfocusedIndicatorColor = Color.Gray,
+            cursorColor = Color.Red,
+            focusedLabelColor = Color.Blue,
+            unfocusedLabelColor = Color.Gray
+        ),
+        modifier = modifier.fillMaxWidth(),
+        singleLine = singleLine
+    )
+}
 
 @Composable
 fun Adding(onClick: () -> Unit){
@@ -118,13 +161,19 @@ fun Adding(onClick: () -> Unit){
 }
 
 @Composable
-private fun ListItem(name: String){
+private fun ListItem(name: String, onDelete: () -> Unit = {}){
+
+    var options by remember {
+        mutableStateOf(listOf(AnswerOption(), AnswerOption()))
+    }
+    var expnd by remember { mutableStateOf(true) }
+    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
     var task by remember {mutableStateOf("")  }
-    var typik by remember {mutableStateOf("Один верный ответ") }
-    var expnd by remember { mutableStateOf(false) }
+    var typik by remember {mutableStateOf("Несколько верных ответов") }
+    var locval by remember {mutableStateOf("")  }
     var state by remember { mutableStateOf(ToggleableState.Indeterminate) }
     Card(modifier = Modifier.fillMaxWidth().
-        padding(20.dp).
+        padding(15.dp).
         shadow(5.dp),
         shape = RoundedCornerShape(15.dp)
     ) {
@@ -135,84 +184,196 @@ private fun ListItem(name: String){
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center) {
 
-            TextField(
+            Row() {
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = {expnd= !expnd},
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Gray
+                    )
+                ) {
+                    Text(text = if (expnd) "свернуть" else "развернуть", color = Color.White)
+                }
+
+                Button(
+                    onClick = onDelete,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Gray
+                    )
+                ) {
+                    Text("Удалить вопрос", color = Color.White)
+                }
+            }
+
+            CustomTextField(
                 value = task,
                 onValueChange = { task = it },
-                label = { Text(name) },
-                colors = TextFieldDefaults.colors(
-
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.DarkGray,
-
-                    // Цвет фона (заливки) поля
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.LightGray,
-
-                    // Цвет нижней линии (индикатора)
-                    focusedIndicatorColor = Color.Blue,
-                    unfocusedIndicatorColor = Color.Gray,
-
-                    // Цвет курсора
-                    cursorColor = Color.Red,
-
-                    // Цвет подписи (лейбла)
-                    focusedLabelColor = Color.Blue,
-                    unfocusedLabelColor = Color.Gray,),
-                modifier = Modifier.fillMaxWidth()
+                label = name
             )
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically) {
+            AnimatedVisibility(
+                visible = expnd,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column() {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Start),
+                        verticalAlignment = Alignment.CenterVertically) {
 
-                Text(
-                    text = typik,
-                    color = Color.White,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-                Spacer(Modifier.weight(1f))
+                        Text(
+                            text = typik,
+                            color = Color.White,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                        Spacer(Modifier.weight(1f))
 
-                TriStateCheckbox(
-                    state = state,
-                    onClick = {
-                        // Переключаем между On и Off при клике
-                        state = if (state == ToggleableState.On)
-                        {ToggleableState.Indeterminate}
-                        else if (state == ToggleableState.Indeterminate)
-                        {ToggleableState.Off}
-                        else ToggleableState.On
+                        TriStateCheckbox(
+                            state = state,
+                            onClick = {
+                                // Переключаем между On и Off при клике
+                                state = if (state == ToggleableState.On)
+                                {ToggleableState.Indeterminate}
+                                else if (state == ToggleableState.Indeterminate)
+                                {ToggleableState.Off}
+                                else ToggleableState.On
 
-                        typik = if (state == ToggleableState.On) "Один верный ответ"
-                        else if (state == ToggleableState.Indeterminate)
-                        "Несколько верных ответов"
-                        else "Ответ необходимо написать"
+                                typik = if (state == ToggleableState.On) "Один верный ответ"
+                                else if (state == ToggleableState.Indeterminate)
+                                "Несколько верных ответов"
+                                else "Ответ необходимо написать"
+                            }
+                        )
                     }
-                )
-                TextField(
-                    value = task,
-                    onValueChange = { task = it },
-                    label = { Text("введите верный ответ") },
-                    colors = TextFieldDefaults.colors(
+                    if (state==ToggleableState.Off){
+                        CustomTextField(
+                            value = locval,
+                            onValueChange = { locval = it },
+                            label = "Напишите ответ"
+                        )
+                    }
+                    if (state==ToggleableState.Indeterminate){
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            options.forEachIndexed { index, option ->
+                           Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                           ) {
+                                    // Чекбокс для отметки правильного ответа
+                                Checkbox(
+                                    checked = option.isChecked,
+                                    onCheckedChange = { isChecked ->
+                                        options = options.toMutableList().apply {
+                                            this[index] = this[index].copy(isChecked = isChecked)
+                                        }
+                                    }
+                                )
+                               CustomTextField(
+                                   value = option.text,
+                                   onValueChange = { option.text = it },
+                                   label = "Введите вариант ответа")
+                               }
+                           }
 
-                        focusedTextColor = Color.Black,
-                        unfocusedTextColor = Color.DarkGray,
 
-                        // Цвет фона (заливки) поля
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.LightGray,
-
-                        // Цвет нижней линии (индикатора)
-                        focusedIndicatorColor = Color.Blue,
-                        unfocusedIndicatorColor = Color.Gray,
-
-                        // Цвет курсора
-                        cursorColor = Color.Red,
-
-                        // Цвет подписи (лейбла)
-                        focusedLabelColor = Color.Blue,
-                        unfocusedLabelColor = Color.Gray,),
-                    modifier = Modifier.fillMaxWidth()
-                )
+                            Row() {
+                                Spacer(modifier = Modifier.weight(1f))
+                                Button(
+                                    onClick = {
+                                        options = options + AnswerOption()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth(0.5f)
+                                        .padding(top = 8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray
+                                    )
+                                ) {
+                                    Text("+ Добавить вариант", color = Color.White)
+                                }
+                                Button(
+                                    onClick = {
+                                        if (options.size>2){
+                                            options = options.toMutableList().apply {
+                                                removeAt(options.size-1)
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray
+                                    )
+                                ) {
+                                    Text("- Удалить вариант", maxLines = 1, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                    if (state==ToggleableState.On){
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            options.forEachIndexed { index, option ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    // Чекбокс для отметки правильного ответа
+                                    RadioButton(
+                                        selected = selectedOptionIndex == index,
+                                        onClick = {
+                                            selectedOptionIndex = index
+                                        }
+                                    )
+                                    CustomTextField(
+                                        value = option.text,
+                                        onValueChange = { option.text = it },
+                                        label = "Введите вариант ответа")
+                                }
+                            }
+                            Row() {
+                                Spacer(modifier = Modifier.weight(1f))
+                                Button(
+                                    onClick = {
+                                        options = options + AnswerOption()
+                                    },
+                                    modifier = Modifier.fillMaxWidth(0.5f)
+                                        .padding(top = 8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray
+                                    )
+                                ) {
+                                    Text("+ Добавить вариант", color = Color.White)
+                                }
+                                Button(
+                                    onClick = {
+                                        if (options.size>2){
+                                            options = options.toMutableList().apply {
+                                                removeAt(options.size-1)
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(top = 8.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Gray
+                                    )
+                                ) {
+                                    Text("- Удалить вариант", maxLines = 1, color = Color.White)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
