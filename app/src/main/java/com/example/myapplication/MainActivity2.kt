@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -61,21 +62,29 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 
 class MainActivity2 : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val testName = intent.getStringExtra("TEST_NAME") ?: "Новый тест"
         setContent {
-            Glavnaya()
+            Glavnaya(testName = testName)
         }
     }
 }
 
-data class Question(
-    val name:String){
-}
+data class QuestionState(
+    val task: String = "",
+    val state: ToggleableState = ToggleableState.Indeterminate,
+    val options: List<AnswerOption> = listOf(AnswerOption(), AnswerOption()),
+    val selectedOptionIndex: Int? = null,
+    val locval: String = ""
+)
 
 data class AnswerOption(
     val id: Int = System.currentTimeMillis().toInt(),
@@ -84,38 +93,84 @@ data class AnswerOption(
 )
 
 @Composable
-fun Glavnaya(){
+fun Glavnaya(testName: String = "Новый тест"
+             , viewModel: MainView = viewModel(factory = MainView.factory)
+){
+    val context = LocalContext.current
     val questions = remember {
-        mutableStateListOf(
-            Question("Вопрос 1"),
-
-        )
+        mutableStateListOf(QuestionState())
     }
+
+    fun isTestReady(): Boolean {
+        if (questions.isEmpty()) return false
+
+        return questions.all { question ->
+            // Проверка типа вопроса
+            when (question.state) {
+                ToggleableState.Off -> {
+
+                    question.locval.isNotBlank()
+                }
+                ToggleableState.On -> {
+                    // И все варианты должны быть заполнены
+                    question.selectedOptionIndex != null &&
+                            question.options.all { it.text.isNotBlank() }
+                }
+                ToggleableState.Indeterminate -> {
+                    // MULTIPLE_CHOICE: должен быть выбран хотя бы один правильный ответ
+                    // И все варианты должны быть заполнены
+                    question.options.any { it.isChecked } &&
+                            question.options.all { it.text.isNotBlank() }
+                }
+                else -> false
+            }
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize().background(color = Color.White)){
         LazyColumn(modifier = Modifier.fillMaxHeight(0.9f)) {
             items(questions.size){ index ->
                 val question = questions[index]
                 ListItem(
-                    name = question.name,
+                    questionState = question,
+                    onUpdate = { updatedQuestion ->
+                        questions[index] = updatedQuestion
+                    },
                     onDelete = {
-                        questions.removeAt(index)
+                        if (questions.size > 1) {
+                            questions.removeAt(index)
+                        }
                     }
                 )
             }
         }
-        Box(modifier = Modifier.align(Alignment.BottomCenter).
-        fillMaxWidth().
-        padding(10.dp)) {
+        Row(modifier = Modifier.align(Alignment.BottomCenter).
+            fillMaxWidth().
+            padding(10.dp)) {
+
+            Save(
+                onClick = {
+                viewModel.saveTestFromUI(
+                    testName = testName,
+                    questions = questions.toList()
+                ) {
+                    // После сохранения — закрываем экран
+                    (context as? Activity)?.finish()
+                }
+            },
+                enabled = questions.isNotEmpty() && isTestReady())
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Кнопка добавления вопроса
             Adding {
-                questions.add(
-                    Question(
-                        name = "Bопрос ${questions.size + 1}"
-                    )
-                )
+                questions.add(QuestionState())
             }
         }
     }
 }
+
+
 
 @Composable
 fun CustomTextField(
@@ -146,32 +201,69 @@ fun CustomTextField(
 }
 
 @Composable
-fun Adding(onClick: () -> Unit){
-    Button(modifier = Modifier.fillMaxWidth(),
+fun Save(onClick: () -> Unit, enabled: Boolean = true){
+    Button(modifier = Modifier.fillMaxWidth(0.5f),
         onClick = onClick,
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Black,       // Цвет фона кнопки
             contentColor = Color.White,       // Цвет текста и иконок
             disabledContainerColor = Color.Gray, // Цвет фона, когда кнопка неактивна
             disabledContentColor = Color.Black   // Цвет текста, когда кнопка неактивна
         )
-    ) {Text(text = "+Добавить вопрос",
-        style = TextStyle(color = Color.White, fontSize = 38.sp)
+    ) {Text(text = "Сохранить тест",
+        style = TextStyle(color = Color.White, fontSize = 22.sp)
+    ) }
+}
+@Composable
+fun Adding(onClick: () -> Unit){
+    Button(modifier = Modifier.fillMaxWidth(),
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Black,       // Цвет фона кнопки
+            contentColor = Color.White,       // Цвет текста и иконок
+        )
+    ) {Text(text = "Добавить вопрос",
+        style = TextStyle(color = Color.White, fontSize = 22.sp)
     ) }
 }
 
-@Composable
-private fun ListItem(name: String, onDelete: () -> Unit = {}){
 
-    var options by remember {
-        mutableStateOf(listOf(AnswerOption(), AnswerOption()))
-    }
+@Composable
+private fun ListItem(questionState: QuestionState,
+                     onUpdate: (QuestionState) -> Unit,
+                     onDelete: () -> Unit){
+
+    var options by remember { mutableStateOf(questionState.options) }
     var expnd by remember { mutableStateOf(true) }
-    var selectedOptionIndex by remember { mutableStateOf<Int?>(null) }
-    var task by remember {mutableStateOf("")  }
+    var selectedOptionIndex by
+    remember { mutableStateOf(questionState.selectedOptionIndex) }
+    var task by remember {mutableStateOf(questionState.task)  }
     var typik by remember {mutableStateOf("Несколько верных ответов") }
-    var locval by remember {mutableStateOf("")  }
-    var state by remember { mutableStateOf(ToggleableState.Indeterminate) }
+    var locval by remember { mutableStateOf(questionState.locval) }
+    var state by remember { mutableStateOf(questionState.state) }
+
+    LaunchedEffect(questionState) {
+        task = questionState.task
+        state = questionState.state
+        options = questionState.options
+        selectedOptionIndex = questionState.selectedOptionIndex
+        locval = questionState.locval
+    }
+
+    // Функция синхронизации с родителем
+    fun syncToParent() {
+        onUpdate(
+            questionState.copy(
+                task = task,
+                state = state,
+                options = options,
+                selectedOptionIndex = selectedOptionIndex,
+                locval = locval
+            )
+        )
+    }
+
     Card(modifier = Modifier.fillMaxWidth().
         padding(15.dp).
         shadow(5.dp),
@@ -213,8 +305,9 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
 
             CustomTextField(
                 value = task,
-                onValueChange = { task = it },
-                label = name
+                onValueChange = {  task = it
+                    syncToParent()},
+                label = "Текст вопроса"
             )
             AnimatedVisibility(
                 visible = expnd,
@@ -248,13 +341,16 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                 else if (state == ToggleableState.Indeterminate)
                                 "Несколько верных ответов"
                                 else "Ответ необходимо написать"
+
+                                syncToParent()
                             }
                         )
                     }
                     if (state==ToggleableState.Off){
                         CustomTextField(
                             value = locval,
-                            onValueChange = { locval = it },
+                            onValueChange = { locval = it
+                                syncToParent()},
                             label = "Напишите ответ"
                         )
                     }
@@ -274,21 +370,26 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                         options = options.toMutableList().apply {
                                             this[index] = this[index].copy(isChecked = isChecked)
                                         }
+                                        syncToParent()
                                     }
                                 )
                                CustomTextField(
                                    value = option.text,
-                                   onValueChange = { option.text = it },
+                                   onValueChange = { newText ->
+                                       options = options.toMutableList().apply {
+                                           this[index] = this[index].copy(text = newText)
+                                       }
+                                       syncToParent()
+                                   },
                                    label = "Введите вариант ответа")
                                }
                            }
-
-
                             Row() {
                                 Spacer(modifier = Modifier.weight(1f))
                                 Button(
                                     onClick = {
                                         options = options + AnswerOption()
+                                        syncToParent()
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth(0.5f)
@@ -305,6 +406,7 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                             options = options.toMutableList().apply {
                                                 removeAt(options.size-1)
                                             }
+                                            syncToParent()
                                         }
                                     },
                                     modifier = Modifier.fillMaxWidth()
@@ -332,11 +434,17 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                         selected = selectedOptionIndex == index,
                                         onClick = {
                                             selectedOptionIndex = index
+                                            syncToParent()
                                         }
                                     )
                                     CustomTextField(
                                         value = option.text,
-                                        onValueChange = { option.text = it },
+                                        onValueChange = { newText ->
+                                            options = options.toMutableList().apply {
+                                                this[index] = this[index].copy(text = newText)
+                                            }
+                                            syncToParent()
+                                        },
                                         label = "Введите вариант ответа")
                                 }
                             }
@@ -345,6 +453,7 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                 Button(
                                     onClick = {
                                         options = options + AnswerOption()
+                                        syncToParent()
                                     },
                                     modifier = Modifier.fillMaxWidth(0.5f)
                                         .padding(top = 8.dp),
@@ -360,6 +469,7 @@ private fun ListItem(name: String, onDelete: () -> Unit = {}){
                                             options = options.toMutableList().apply {
                                                 removeAt(options.size-1)
                                             }
+                                            syncToParent()
                                         }
                                     },
                                     modifier = Modifier.fillMaxWidth()
