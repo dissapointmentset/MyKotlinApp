@@ -20,10 +20,13 @@ class BaseActivity : AppCompatActivity() {
             insets
         }
         val linkToReg: Button = findViewById(R.id.create_butt)
-
-
         linkToReg.setOnClickListener {
             val intent = Intent(this, CreateQuis::class.java)
+            startActivity(intent)
+        }
+        val watchingTests: Button = findViewById(R.id.checklist_butt)
+        watchingTests.setOnClickListener {
+            val intent = Intent(this, MyTests::class.java)
             startActivity(intent)
         }
     }

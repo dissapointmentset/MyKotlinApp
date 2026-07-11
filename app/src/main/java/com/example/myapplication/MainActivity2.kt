@@ -230,7 +230,7 @@ fun Adding(onClick: () -> Unit){
 
 
 @Composable
-private fun ListItem(questionState: QuestionState,
+fun ListItem(questionState: QuestionState,
                      onUpdate: (QuestionState) -> Unit,
                      onDelete: () -> Unit){
 

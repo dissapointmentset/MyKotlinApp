@@ -10,6 +10,7 @@ import com.example.myapplication.data.BasaDanih
 import com.example.myapplication.data.Question
 import com.example.myapplication.data.QuestionType
 import com.example.myapplication.data.Test
+import com.example.myapplication.data.TestInfo
 import com.example.myapplication.data.TestWithQuestions
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -127,11 +128,80 @@ class MainView(private val dataBase: BasaDanih) : ViewModel() {
     }
 
     // Удалить тест из БД
-    fun deleteTest(test: Test) {
+    fun deleteTest(testId: Int) {
         viewModelScope.launch {
-            testDao.deleteTest(test)
+            testDao.deleteQuestionsByTestId(testId)
+            testDao.deleteTest(testId)
         }
     }
+
+    fun loadTestForEditing(testId: Int, onLoaded: (String, List<QuestionState>) -> Unit) {
+        viewModelScope.launch {
+            val testWithQuestions = testDao.getTestWithQuestionsById(testId)
+            if (testWithQuestions != null) {
+                val testName = testWithQuestions.test.name
+                val questions = testWithQuestions.questions.map { it.toQuestionState() }
+                onLoaded(testName, questions)
+            }
+        }
+    }
+
+    // обновление существующего теста
+    fun updateTest(testId: Int, testName: String, questions: List<QuestionState>, onComplete: () -> Unit = {}) {
+        viewModelScope.launch {
+            // 1. Обновляем название теста
+            val test = Test(id = testId, name = testName)
+            testDao.updateTest(test)
+
+            // 2. Удаляем старые вопросы
+            testDao.deleteQuestionsByTestId(testId)
+
+            // 3. Сохраняем новые вопросы
+            val questionsToSave = questions.map { state ->
+                state.toQuestion(testId = testId)
+            }
+            testDao.insertQuestions(questionsToSave)
+
+            onComplete()
+        }
+    }
+
+    // Обратная конвертация: Question  → QuestionState
+    fun Question.toQuestionState(): QuestionState {
+        val toggleState = when (questionType) {
+            QuestionType.SINGLE_CHOICE -> ToggleableState.On
+            QuestionType.MULTIPLE_CHOICE -> ToggleableState.Indeterminate
+            QuestionType.TEXT_INPUT -> ToggleableState.Off
+        }
+
+        // Восстанавливаем список вариантов ответов
+        val answerOptions = varianti.mapIndexed { index, text ->
+            AnswerOption(
+                text = text,
+                isChecked = indexiOtveta.contains(index)
+            )
+        }.ifEmpty { listOf(AnswerOption(), AnswerOption()) }
+
+        // Определяем выбранный индекс для SINGLE_CHOICE
+        val selectedIndex = if (questionType == QuestionType.SINGLE_CHOICE && indexiOtveta.isNotEmpty()) {
+            indexiOtveta.first()
+        } else null
+
+        return QuestionState(
+            task = vopros,
+            state = toggleState,
+            options = answerOptions,
+            selectedOptionIndex = selectedIndex,
+            locval = otvet
+        )
+    }
+
+    val allTestsInfo: StateFlow<List<TestInfo>> = testDao.getAllTestsInfo()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
     companion object {
         val factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")

@@ -18,8 +18,8 @@ interface TestDao {
     @Query("SELECT * FROM Testi WHERE id = :testId")
     suspend fun getTestById(testId: Int): Test?
     // Удаление теста. Благодаря CASCADE в Question, все вопросы удалятся автоматически.
-    @Delete
-    suspend fun deleteTest(test: Test)
+//    @Delete
+//    suspend fun deleteTest(test: Test)
     // Вставка одного вопроса.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuestion(question: Question)
@@ -49,4 +49,20 @@ interface TestDao {
     ORDER BY t.id DESC
 """)
     fun getAllTestsInfo(): Flow<List<TestInfo>>
+
+    @Transaction
+    @Query("SELECT * FROM Testi WHERE id = :testId")
+    suspend fun getTestWithQuestionsById(testId: Int): TestWithQuestions?
+
+    // ✅ Обновление теста
+    @Update
+    suspend fun updateTest(test: Test)
+
+    // ✅ Удаление всех вопросов теста
+    @Query("DELETE FROM Voprosi WHERE testId = :testId")
+    suspend fun deleteQuestionsByTestId(testId: Int)
+
+    @Query("DELETE FROM Testi WHERE Id = :testId")
+    suspend fun deleteTest(testId: Int)
+
 }

@@ -44,7 +44,7 @@
         android:id="@+id/search_butt"
         android:layout_width="220dp"
         android:layout_height="70dp"
-        android:text="найти тестом"
+        android:text="найти тесты"
         android:layout_marginTop="50dp"
         />
     <Button
