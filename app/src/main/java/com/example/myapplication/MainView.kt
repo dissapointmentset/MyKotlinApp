@@ -214,4 +214,74 @@ class MainView(private val dataBase: BasaDanih) : ViewModel() {
             }
         }
     }
+
+    fun TestTaking(testId: Int, onLoaded: (String, List<infaDlyaOtvetov>) -> Unit) {
+        viewModelScope.launch {
+            val testWithQuestions = testDao.getTestWithQuestionsById(testId)
+            if (testWithQuestions != null) {
+                val testName = testWithQuestions.test.name
+
+                // Преобразуем вопросы из БД в состояние для прохождения
+                val takingQuestions = testWithQuestions.questions.map { q ->
+                    infaDlyaOtvetov(
+                        questionId = q.id,
+                        task = q.vopros,
+                        type = q.questionType,
+                        options = q.varianti,
+                        selectedSingleIndex = null,
+                        checkedIndices = mutableListOf(),
+                        textAnswer = ""
+                    )
+                }
+                onLoaded(testName, takingQuestions)
+            }
+        }
+    }
+
+//    // Метод для проверки результатов (можно доработать позже для подсчета баллов)
+//    fun finishTest(testId: Int, userAnswers: List<infaDlyaOtvetov>) {
+//        viewModelScope.launch {
+//            // Здесь можно сохранить результаты пользователя в отдельную таблицу Results
+//            // Или просто сравнить userAnswers с правильными ответами из БД
+//            println("Тест завершен! Ответов: ${userAnswers.size}")
+//        }
+//    }
+
+    fun checkAndFinishTest(
+        testId: Int,
+        userAnswers: List<infaDlyaOtvetov>,
+        onResult: (Int, Int, List<infaDlyaOtvetov>) -> Unit // (Всего, Правильных, Оцененные ответы)
+    ) {
+        viewModelScope.launch {
+            val testWithQuestions = testDao.getTestWithQuestionsById(testId) ?: return@launch
+
+            // Создаем новый список с проставленными флагами isCorrect
+            val evaluatedAnswers = userAnswers.map { userAnswer ->
+                val dbQuestion = testWithQuestions.questions.find { it.id == userAnswer.questionId }
+
+                val isCorrect = if (dbQuestion != null) {
+                    when (userAnswer.type) {
+                        QuestionType.TEXT_INPUT ->
+                            userAnswer.textAnswer.trim().equals(dbQuestion.otvet.trim(), ignoreCase = true)
+
+                        QuestionType.SINGLE_CHOICE ->
+                            userAnswer.selectedSingleIndex != null &&
+                                    dbQuestion.indexiOtveta.contains(userAnswer.selectedSingleIndex)
+
+                        QuestionType.MULTIPLE_CHOICE ->
+                            userAnswer.checkedIndices.toSet() == dbQuestion.indexiOtveta.toSet()
+                    }
+                } else false
+
+                // Возвращаем копию ответа, но с обновленным флагом isCorrect
+                userAnswer.copy(isCorrect = isCorrect)
+            }
+
+            val correctCount = evaluatedAnswers.count { it.isCorrect }
+
+            // Передаем всё в UI
+            onResult(testWithQuestions.questions.size, correctCount, evaluatedAnswers)
+        }
+    }
+
 }

@@ -105,8 +105,11 @@ fun Glavnaya(testName: String = "Новый тест"
         if (questions.isEmpty()) return false
 
         return questions.all { question ->
+
+            val isTaskFilled = question.task.isNotBlank()
+
             // Проверка типа вопроса
-            when (question.state) {
+            val isAnswerFilled = when (question.state) {
                 ToggleableState.Off -> {
 
                     question.locval.isNotBlank()
@@ -124,6 +127,7 @@ fun Glavnaya(testName: String = "Новый тест"
                 }
                 else -> false
             }
+            isTaskFilled && isAnswerFilled
         }
     }
 
