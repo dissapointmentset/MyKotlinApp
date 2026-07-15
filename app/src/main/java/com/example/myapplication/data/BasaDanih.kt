@@ -18,7 +18,6 @@ abstract class BasaDanih : RoomDatabase() {
 
     //абстрактный метод для TestDao
     abstract fun testDao(): TestDao
-    abstract fun MyDao(): MyDao
     companion object {
         @Volatile
         private var INSTANCE: BasaDanih? = null

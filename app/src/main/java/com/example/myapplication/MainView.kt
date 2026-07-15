@@ -6,15 +6,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import com.example.myapplication.data.AnswerOption
 import com.example.myapplication.data.BasaDanih
 import com.example.myapplication.data.Question
+import com.example.myapplication.data.QuestionState
 import com.example.myapplication.data.QuestionType
 import com.example.myapplication.data.Test
 import com.example.myapplication.data.TestInfo
-import com.example.myapplication.data.TestWithQuestions
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.example.myapplication.data.infaDlyaOtvetov
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
@@ -23,58 +23,7 @@ class MainView(private val dataBase: BasaDanih) : ViewModel() {
 
     // Получаем DAO из базы данных.
     private val testDao = dataBase.testDao()
-    // Flow автоматически обновляется при любом изменении в БД.
-    val allTests: StateFlow<List<TestWithQuestions>> = testDao.getAllTestsWithQuestions()
-        .stateIn(
-            scope = viewModelScope,
-            started = kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000),
-            initialValue = emptyList<TestWithQuestions>()
-        )
     // Название теста, который пользователь создаёт прямо сейчас
-    private val _draftTestName = MutableStateFlow("Новый тест")
-    val draftTestName: StateFlow<String> = _draftTestName.asStateFlow()
-    // Список вопросов черновика (пока не сохранён в БД)
-    private val _draftQuestions = MutableStateFlow<List<Question>>(emptyList())
-    val draftQuestions: StateFlow<List<Question>> = _draftQuestions.asStateFlow()
-    // Изменить название теста
-    fun updateDraftTestName(name: String) {
-        _draftTestName.value = name
-    }
-    // Добавить новый вопрос в черновик
-    fun addDraftQuestion(question: Question) {
-        _draftQuestions.value = _draftQuestions.value + question
-    }
-    // Обновить вопрос в черновике по индексу
-    fun updateDraftQuestion(index: Int, question: Question) {
-        _draftQuestions.value = _draftQuestions.value.toMutableList().apply {
-            this[index] = question
-        }
-    }
-    // Удалить вопрос из черновика
-    fun removeDraftQuestion(index: Int) {
-        _draftQuestions.value = _draftQuestions.value.toMutableList().apply {
-            removeAt(index)
-        }
-    }
-    // Сохранить текущий черновик теста в БД
-    // функция связывает Test и Question
-    fun saveTest() {
-        viewModelScope.launch {
-            //Создаём объект Test
-            val test = Test(name = _draftTestName.value)
-            //Сохраняем тест и получаем его сгенерированный ID
-            val testId = testDao.insertTest(test).toInt()
-            //Привязываем все вопросы к этому тесту через testId
-            val questionsWithTestId = _draftQuestions.value.map { question ->
-                question.copy(testId = testId)
-            }
-            //Сохраняем все вопросы разом
-            testDao.insertQuestions(questionsWithTestId)
-            //Очищаем черновик
-            _draftTestName.value = "Новый тест"
-            _draftQuestions.value = emptyList()
-        }
-    }
 
     fun QuestionState.toQuestion(testId: Int): Question {
         val questionType = when (state) {

@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -30,14 +29,13 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.Icon
 import com.example.myapplication.data.QuestionType
+import com.example.myapplication.data.infaDlyaOtvetov
 
 class ResultTest : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -209,13 +207,13 @@ fun QuestionResultItem(answer: infaDlyaOtvetov) {
                     modifier = Modifier.padding(start = 8.dp)
                 )
             }
-
-            // 💡оказать правильный ответ, если пользователь ошибся
-            if (!answer.isCorrect) {
-                // понадобится доступ к правильному ответу из БД.
-                // передам его в infaDlyaOtvetov  поле correctAnswerText: String,
-                // вы можете вывести его здесь серым цветом для обучения пользователя.
-            }
+//на будущее
+//            // показать правильный ответ, если пользователь ошибся
+//            if (!answer.isCorrect) {
+//                // понадобится доступ к правильному ответу из БД.
+//                // передам его в infaDlyaOtvetov  поле correctAnswerText: String,
+//                // вы можете вывести его здесь серым цветом для обучения пользователя.
+//            }
         }
     }
 }

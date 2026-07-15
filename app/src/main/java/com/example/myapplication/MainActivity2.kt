@@ -2,7 +2,6 @@ package com.example.myapplication
 
 import android.app.Activity
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -12,29 +11,19 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -49,22 +38,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import kotlinx.coroutines.flow.callbackFlow
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.RadioButton
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.AnswerOption
+import com.example.myapplication.data.QuestionState
 
 
 class MainActivity2 : ComponentActivity() {
@@ -77,20 +62,6 @@ class MainActivity2 : ComponentActivity() {
         }
     }
 }
-
-data class QuestionState(
-    val task: String = "",
-    val state: ToggleableState = ToggleableState.Indeterminate,
-    val options: List<AnswerOption> = listOf(AnswerOption(), AnswerOption()),
-    val selectedOptionIndex: Int? = null,
-    val locval: String = ""
-)
-
-data class AnswerOption(
-    val id: Int = System.currentTimeMillis().toInt(),
-    var text: String = "",
-    var isChecked: Boolean = false
-)
 
 @Composable
 fun Glavnaya(testName: String = "Новый тест"
@@ -115,7 +86,7 @@ fun Glavnaya(testName: String = "Новый тест"
                     question.locval.isNotBlank()
                 }
                 ToggleableState.On -> {
-                    // И все варианты должны быть заполнены
+                    // все варианты должны быть заполнены
                     question.selectedOptionIndex != null &&
                             question.options.all { it.text.isNotBlank() }
                 }
@@ -158,7 +129,7 @@ fun Glavnaya(testName: String = "Новый тест"
                     testName = testName,
                     questions = questions.toList()
                 ) {
-                    // После сохранения — закрываем экран
+                    // После сохранения закрываем экран
                     (context as? Activity)?.finish()
                 }
             },
@@ -235,8 +206,8 @@ fun Adding(onClick: () -> Unit){
 
 @Composable
 fun ListItem(questionState: QuestionState,
-                     onUpdate: (QuestionState) -> Unit,
-                     onDelete: () -> Unit){
+             onUpdate: (QuestionState) -> Unit,
+             onDelete: () -> Unit){
 
     var options by remember { mutableStateOf(questionState.options) }
     var expnd by remember { mutableStateOf(true) }

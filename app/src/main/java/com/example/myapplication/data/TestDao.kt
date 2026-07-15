@@ -9,17 +9,12 @@ interface TestDao {
     // Он нужен, чтобы привязать к тесту вопросы.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTest(test: Test): Long
-    // Получение всех тестов как Flow.
-    // Flow автоматически уведомляет UI при изменении данных в БД.
-    @Query("SELECT * FROM Testi ORDER BY id DESC")
-    fun getAllTests(): Flow<List<Test>>
+
     // Получение одного теста по ID.
     // suspend потому что это разовая операция чтения.
     @Query("SELECT * FROM Testi WHERE id = :testId")
     suspend fun getTestById(testId: Int): Test?
-    // Удаление теста. Благодаря CASCADE в Question, все вопросы удалятся автоматически.
-//    @Delete
-//    suspend fun deleteTest(test: Test)
+
     // Вставка одного вопроса.
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertQuestion(question: Question)
