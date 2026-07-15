@@ -222,9 +222,10 @@ class MainView(private val dataBase: BasaDanih) : ViewModel() {
                 val testName = testWithQuestions.test.name
 
                 // Преобразуем вопросы из БД в состояние для прохождения
-                val takingQuestions = testWithQuestions.questions.map { q ->
+                val takingQuestions = testWithQuestions.questions.mapIndexed { index, q ->
                     infaDlyaOtvetov(
                         questionId = q.id,
+                        questionNumber = index + 1,
                         task = q.vopros,
                         type = q.questionType,
                         options = q.varianti,
@@ -237,15 +238,6 @@ class MainView(private val dataBase: BasaDanih) : ViewModel() {
             }
         }
     }
-
-//    // Метод для проверки результатов (можно доработать позже для подсчета баллов)
-//    fun finishTest(testId: Int, userAnswers: List<infaDlyaOtvetov>) {
-//        viewModelScope.launch {
-//            // Здесь можно сохранить результаты пользователя в отдельную таблицу Results
-//            // Или просто сравнить userAnswers с правильными ответами из БД
-//            println("Тест завершен! Ответов: ${userAnswers.size}")
-//        }
-//    }
 
     fun checkAndFinishTest(
         testId: Int,

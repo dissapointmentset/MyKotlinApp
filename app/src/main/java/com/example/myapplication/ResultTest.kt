@@ -43,14 +43,14 @@ class ResultTest : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val userAnswers = intent.getSerializableExtra("USER_ANSWERS") as? List<infaDlyaOtvetov> ?: emptyList()
         setContent {
             TestResultsScreen(
                 testName = intent.getStringExtra("TEST_NAME") ?: "Тест",
                 totalQuestions = intent.getIntExtra("TOTAL_QUESTIONS", 0),
                 correctAnswers = intent.getIntExtra("CORRECT_ANSWERS", 0),
-                userAnswers = emptyList(), // или получите из ViewModel
-                onBackClick = { finish() },
-                onRetakeClick = { finish() }
+                userAnswers = userAnswers, // или получите из ViewModel
+                onBackClick = { finish() }
             )
         }
     }
@@ -62,8 +62,7 @@ fun TestResultsScreen(
     totalQuestions: Int,
     correctAnswers: Int,
     userAnswers: List<infaDlyaOtvetov>,
-    onBackClick: () -> Unit,
-    onRetakeClick: () -> Unit
+    onBackClick: () -> Unit
 ) {
     val percentage = (correctAnswers.toFloat() / totalQuestions * 100).toInt()
 
@@ -72,7 +71,7 @@ fun TestResultsScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(16.dp)
         ) {
-            // ✅ Карточка с результатом
+            //Карточка с результатом
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
@@ -146,18 +145,10 @@ fun TestResultsScreen(
         ) {
             Button(
                 onClick = onBackClick,
-                modifier = Modifier.weight(1f),
-                colors = ButtonDefaults.buttonColors(containerColor = Color.Gray)
-            ) {
-                Text("Назад", color = Color.White)
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            Button(
-                onClick = onRetakeClick,
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f).fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
             ) {
-                Text("Пройти снова", color = Color.White)
+                Text("ОК", color = Color.White)
             }
         }
     }
@@ -174,7 +165,7 @@ fun QuestionResultItem(answer: infaDlyaOtvetov) {
     ) {
         Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
             Text(
-                text = "Вопрос #${answer.questionId}",
+                text = "Вопрос #${answer.questionNumber}",
                 style = TextStyle(fontSize = 12.sp, color = Color.Gray)
             )
             Text(

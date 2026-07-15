@@ -64,6 +64,7 @@ class walkThrough : AppCompatActivity() {
 
 data class infaDlyaOtvetov(
     val questionId: Int,
+    val questionNumber: Int,
     val task: String,
     val type: QuestionType,
     val options: List<String>,

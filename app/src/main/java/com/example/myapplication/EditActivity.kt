@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -69,63 +70,79 @@ fun EditTestScreen(
     fun isTestReady(): Boolean {
         if (questions.isEmpty()) return false
         return questions.all { question ->
-            when (question.state) {
+            val isTaskFilled = question.task.isNotBlank()
+
+            val isAnswerFilled = when (question.state) {
                 ToggleableState.Off -> question.locval.isNotBlank()
                 ToggleableState.On -> question.selectedOptionIndex != null &&
                         question.options.all { it.text.isNotBlank() }
+
                 ToggleableState.Indeterminate -> question.options.any { it.isChecked } &&
                         question.options.all { it.text.isNotBlank() }
+
                 else -> false
             }
+            isTaskFilled && isAnswerFilled
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize().background(Color.White)) {
-        if (!isLoaded) {
-            // Показываем индикатор загрузки
-            CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxHeight(0.9f)) {
-                items(questions.size) { index ->
-                    ListItem(
-                        questionState = questions[index],
-                        onUpdate = { updatedQuestion ->
-                            questions[index] = updatedQuestion
-                        },
-                        onDelete = {
-                            if (questions.size > 1) {
-                                questions.removeAt(index)
-                            }
-                        }
-                    )
-                }
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .background(Color.White)) {
+        var bebebe by remember { mutableStateOf(testName) }
+
+        LazyColumn(modifier = Modifier
+            .fillMaxHeight(0.9f)
+            .padding(top = 20.dp)) {
+
+            item {
+                CustomTextField(
+                    modifier = Modifier.padding(top = 10.dp),
+                    value = bebebe,
+                    onValueChange = { bebebe = it },
+                    label = "Название теста"
+                )
             }
 
-            Row(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(10.dp)
-            ) {
-                Save(
-                    onClick = {
-                        // ✅ ОБНОВЛЕНИЕ вместо создания
-                        viewModel.updateTest(
-                            testId = testId,
-                            testName = testName,
-                            questions = questions.toList()
-                        ) {
-                            (context as? Activity)?.finish()
-                        }
+            items(questions.size) { index ->
+                ListItem(
+                    questionState = questions[index],
+                    onUpdate = { updatedQuestion ->
+                        questions[index] = updatedQuestion
                     },
-                    enabled = questions.isNotEmpty() && isTestReady()
+                    onDelete = {
+                        if (questions.size > 1) {
+                            questions.removeAt(index)
+                        }
+                    }
                 )
+            }
+        }
 
-                Spacer(modifier = Modifier.weight(1f))
+        Row(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
+            Save(
+                onClick = {
+                    // вместо создания
+                    viewModel.updateTest(
+                        testId = testId,
+                        testName = bebebe,
+                        questions = questions.toList()
+                    ) {
+                        (context as? Activity)?.finish()
+                    }
+                },
+                enabled = questions.isNotEmpty() && isTestReady() && bebebe.isNotBlank()
+            )
 
-                Adding {
-                    questions.add(QuestionState())
-                }
+            Spacer(modifier = Modifier.weight(1f))
+
+            Adding {
+                questions.add(QuestionState())
             }
         }
     }
